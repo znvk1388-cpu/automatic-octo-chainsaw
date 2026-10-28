@@ -57,6 +57,8 @@
     var note = root.Engine.noteOf ? root.Engine.noteOf(item.id, today()) : '';
     result += '<div class="v63-focus-main"><strong>' + esc(item.name) + '</strong><span class="v63-focus-state' +
       (done ? ' done' : '') + '">' + label + '</span></div>';
+    if (item.type === 'duration' && Number.isFinite(Number(item.target)) && Number(item.target) > 0)
+      result += '<p class="v63-focus-note">目标：' + esc(item.target) + ' ' + esc(item.unit || '分钟') + '</p>';
     if (note) result += '<p class="v63-focus-note">' + esc(note) + '</p>';
     else if (label === '轻量完成') result += '<p class="v63-focus-note">做了最小版本，也向前走了一步。</p>';
     if (before) result += '<p class="v63-focus-dependency" id="v63FocusDependency">' +

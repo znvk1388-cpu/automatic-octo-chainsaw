@@ -30,19 +30,33 @@ const CHEER_GAP = 20 * 3600 * 1000;                 // 一次打气管 20 小时
 
 /* ---------------- 存储 ---------------- */
 const pairs = new Map();
-let saveTimer = null;
-
 function load() {
   try {
     const raw = JSON.parse(fs.readFileSync(DATA, 'utf8'));
     Object.keys(raw || {}).forEach(k => { if (raw[k] && raw[k].code) pairs.set(k, raw[k]); });
-  } catch (e) { /* 第一次启动没有文件，正常 */ }
+  } catch (e) {
+    if (e.code !== 'ENOENT') throw e;
+  }
 }
 function save() {
-  clearTimeout(saveTimer);
-  saveTimer = setTimeout(() => {
-    try { fs.writeFileSync(DATA, JSON.stringify(Object.fromEntries(pairs))); } catch (e) { /* 只读文件系统就只留内存 */ }
-  }, 300);
+  const temp = DATA + '.' + crypto.randomBytes(8).toString('hex') + '.tmp';
+  try {
+    fs.writeFileSync(temp, JSON.stringify(Object.fromEntries(pairs)), {flag: 'wx'});
+    fs.renameSync(temp, DATA);
+  } catch (e) {
+    try { fs.unlinkSync(temp); } catch (_) {}
+    console.error('[rigongyizhu] 保存搭子数据失败:', e.message);
+    throw fail(503, 'storage-unavailable');
+  }
+}
+function mutate(action, input) {
+  const before = JSON.stringify(Object.fromEntries(pairs));
+  try { return action(input); }
+  catch (e) {
+    pairs.clear();
+    Object.entries(JSON.parse(before)).forEach(([key, value]) => pairs.set(key, value));
+    throw e;
+  }
 }
 load();
 
@@ -180,7 +194,11 @@ function limited(ip) {
 setInterval(() => {
   const now = Date.now();
   for (const [ip, h] of hits) if (now - h.at > 120000) hits.delete(ip);
-  for (const [c, p] of pairs) if (now - (p.updated || 0) > TTL_MS) pairs.delete(c);
+  const expired = [...pairs].filter(([, p]) => now - (p.updated || 0) > TTL_MS);
+  if (expired.length) {
+    try { mutate(() => { expired.forEach(([code]) => pairs.delete(code)); save(); }); }
+    catch (_) { /* Failed persistence retains the in-memory data for retry. */ }
+  }
 }, 3600000).unref();
 
 /* ---------------- 静态文件 ---------------- */
@@ -295,12 +313,12 @@ const server = http.createServer(async (req, res) => {
     if (limited(ip)) return json(res, { ok: false, error: 'slow-down' }, 429);
     try {
       if (p === '/api/health') return json(res, { ok: true, pairs: pairs.size, uptime: Math.round(process.uptime()) });
-      if (req.method === 'POST' && p === '/api/create') return json(res, create(await body(req)));
-      if (req.method === 'POST' && p === '/api/join') return json(res, join(await body(req)));
-      if (req.method === 'POST' && p === '/api/state') return json(res, update(await body(req)));
+      if (req.method === 'POST' && p === '/api/create') return json(res, mutate(create, await body(req)));
+      if (req.method === 'POST' && p === '/api/join') return json(res, mutate(join, await body(req)));
+      if (req.method === 'POST' && p === '/api/state') return json(res, mutate(update, await body(req)));
       if (req.method === 'GET' && p === '/api/state') return json(res, read(u.searchParams));
       if (req.method === 'GET' && p === '/api/peek') return json(res, peek(u.searchParams));
-      if (req.method === 'POST' && p === '/api/leave') return json(res, leave(await body(req)));
+      if (req.method === 'POST' && p === '/api/leave') return json(res, mutate(leave, await body(req)));
       return json(res, { ok: false, error: 'not-found' }, 404);
     } catch (e) {
       return json(res, { ok: false, error: e.message || 'error' }, e.status || 500);
@@ -312,7 +330,9 @@ const server = http.createServer(async (req, res) => {
     res.writeHead(405, { Allow: 'GET,HEAD' });
     return res.end();
   }
-  let rel = decodeURIComponent(p);
+  let rel;
+  try { rel = decodeURIComponent(p); }
+  catch (_) { res.writeHead(400, {'Content-Type': 'text/plain; charset=utf-8'}); return res.end('Bad request'); }
   if (rel === '/' || rel === '') rel = '/index.html';
   /* 只认已知后缀，其余当 404 —— 避免把目录/临时文件暴露出去 */
   if (!MIME[path.extname(rel).toLowerCase()]) {

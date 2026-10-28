@@ -173,3 +173,13 @@ test('a selected priority retains dependency locks for check-ins and timers',()=
   assert.match(html,/data-v63-focus="note"/);
   assert.ok(!html.includes('v63FocusDependency'));
 });
+
+
+test('daily focus shows the duration target without changing the habit',()=>{
+  const f=fixture();
+  Object.assign(f.data.items[1], {target:30, unit:'分钟'});
+  f.root.DailyFocus.select('b');
+  const before=JSON.stringify(f.data.items[1]);
+  assert.match(f.root.DailyFocus.html(), /目标：30 分钟/);
+  assert.equal(JSON.stringify(f.data.items[1]),before);
+});
