@@ -6,7 +6,7 @@ const vm = require('node:vm');
 
 const source = fs.readFileSync(path.join(__dirname, '..', 'sw.js'), 'utf8');
 const base = 'https://example.github.io/rigongyizhu/';
-const currentCache = 'rigongyizhu-standalone-63.1';
+const currentCache = 'rigongyizhu-standalone-63.2';
 const absolute = value => new URL(typeof value === 'string' ? value : value.url, base).href;
 
 function worker({ fail = () => false } = {}) {
@@ -194,7 +194,7 @@ test('all precache resources exist in the release directory and use one release 
     if (parsed.searchParams.has('v')) assert.equal(parsed.searchParams.get('v'), '63', resource);
   }
   const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
-  for (const script of ['src/history-engine.js?v=63', 'src/app.bundle.js?v=63', 'src/weekly-metrics.js?v=63', 'src/daily-focus.js?v=63']) {
+  for (const script of ['src/history-engine.js?v=63', 'src/backup-confirm.js?v=63', 'src/app.bundle.js?v=63', 'src/weekly-metrics.js?v=63', 'src/daily-focus.js?v=63']) {
     assert.ok(html.includes(script), script + ' is linked by the app shell');
     assert.ok(w.resources.required.includes('./' + script), script + ' is required offline');
   }

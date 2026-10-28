@@ -52,6 +52,7 @@ if(m)m.setAttribute('content',t==='dark'?'#12141c':'#f6f7fb');
      不写圆角、不留透明：iOS 会自己套圆角遮罩，铺底之后四角也是图标自己的颜色。 -->
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
 <script defer src="src/history-engine.js?v=63"></script>
+<script defer src="src/backup-confirm.js?v=63"></script>
 <script defer src="src/app.bundle.js?v=63"></script>
 <script defer src="src/weekly-metrics.js?v=63"></script>
 <script defer src="src/daily-focus.js?v=63"></script>
@@ -142,7 +143,7 @@ if(m)m.setAttribute('content',t==='dark'?'#12141c':'#f6f7fb');
 
 <div class="sheet-mask" id="sheetMask"></div>
 <div class="sheet" id="sheet" aria-hidden="true"><div class="sheet-body" id="sheetBody"></div></div>
-<div class="toast" id="toast"></div>
+<div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
 <div class="undo-bar" id="undoBar" role="status" aria-live="polite"></div>
 <div class="voice-overlay" id="voiceOverlay">
   <div class="voice-card">
