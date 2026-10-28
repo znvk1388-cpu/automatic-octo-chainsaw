@@ -1,0 +1,13 @@
+{
+  "name": "rigongyizhu",
+  "version": "0.63.0",
+  "private": true,
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test --test-isolation=none tests/*.test.cjs",
+    "check": "node scripts/check-syntax.cjs"
+  },
+  "engines": { "node": ">=24" }
+}
+
