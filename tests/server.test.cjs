@@ -34,7 +34,7 @@ test('server routes deliver the complete app without exposing runtime data', asy
   const page=await request('/');
   assert.equal(page.status,200);
   const scripts=[...page.body.matchAll(/<script defer src="([^"]+)"/g)].map(match=>match[1]);
-  assert.deepEqual(scripts,['src/history-engine.js?v=63','src/backup-confirm.js?v=63','src/app.bundle.js?v=63','src/weekly-metrics.js?v=63','src/daily-focus.js?v=63']);
+  assert.deepEqual(scripts,['src/history-engine.js?v=63','src/backup-confirm.js?v=63','src/diary-conflicts.js?v=63','src/app.bundle.js?v=63','src/weekly-metrics.js?v=63','src/daily-focus.js?v=63','src/habit-drafts.js?v=63','src/sheet-navigation.js?v=63','src/habit-trash.js?v=63']);
   for(const resource of [...scripts,'assets/v63.css?v=63','assets/icon-192.png','manifest.webmanifest','sw.js']){
     const response=await request('/'+resource);
     assert.equal(response.status,200,resource+' is served');

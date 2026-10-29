@@ -22,3 +22,46 @@
 .v63-menu-focus{margin-top:12px}
 .v63-focus-link:focus-visible,.v63-focus-option:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 @media(max-width:359px){.v63-focus{padding:10px 12px}.v63-focus-main{align-items:flex-start}.v63-focus-main strong{font-size:15px}}
+
+/* Review details: touch targets, focus, and long names on narrow screens. */
+.v63-week-breakdown summary{min-height:44px;display:list-item;align-content:center;cursor:pointer;font-weight:600;line-height:1.5;overflow-wrap:anywhere}
+.v63-week-breakdown summary:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:4px}
+.v63-week-breakdown .btn{min-height:44px}
+.v63-week-breakdown progress{accent-color:var(--accent);height:10px}
+.v63-no-plan{color:var(--txt-3)}
+@media(max-width:359px){.v63-week-breakdown .line-cell{padding-inline:0}.v63-week-breakdown .btn{white-space:normal}}
+
+/* Keep the dialog title and exit reachable while long forms scroll. */
+.v63-sheet-head{position:sticky;top:-8px;z-index:4;background:var(--bg);padding:8px 0 14px;margin-bottom:12px;border-bottom:1px solid var(--line)}
+.v63-sheet-head .sheet-grab{margin:2px auto 12px}
+.v63-sheet-head #sheetTitle{padding-right:56px;line-height:1.5;overflow-wrap:anywhere}
+.v63-sheet-head .sheet-close{top:8px;right:0;width:44px;height:44px;border:1px solid var(--line)}
+.sheet{scroll-padding-top:90px}
+/* A visible outlined check invites a tap; solid green remains the completed state. */
+.hitem:not(.done) .tick{border-color:var(--txt-3);background:var(--card)}
+.hitem:not(.done) .tick svg{opacity:1;stroke:var(--txt-3)}
+.h-ctl .t-chip{min-height:44px;min-width:76px;font-size:13px;justify-content:center}
+.h-ctl .t-chip[data-act="timerstart"]{background:var(--accent-fill);color:#fff;border-color:transparent}
+.h-ctl .t-chip:active{filter:brightness(.9)}
+.p-segments button{min-height:44px}
+.p-segments button:active{background:var(--card)}
+@media(max-width:767px){
+ .topbar-right .icon-btn{min-width:44px;min-height:44px}
+ .p-tools button[aria-label="搜索今日习惯"]{min-height:44px;min-width:44px}
+ .hitem .h-name{font-size:15px;line-height:1.5}
+ .hitem .h-meta,.hitem .h-trend{font-size:12.5px;line-height:1.6}
+ .sheet{max-height:90dvh}
+}
+
+
+/* A previous check-in undo must not compete with an active dialog. */
+.sheet.on~.undo-bar{visibility:hidden;pointer-events:none}
+.sheet.on .sheet-body>*{animation:none}
+@media(prefers-reduced-motion:reduce){.view>*{animation:none!important}}
+
+/* Recovery notices and action rows remain readable on narrow phones. */
+.habit-draft-notice{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:10px 0 18px;padding:12px;background:var(--bg-2);border-radius:12px;font-size:13px;line-height:1.5}
+.habit-draft-notice button{min-height:44px;padding:8px 12px;color:var(--txt);background:var(--card);border:1px solid var(--line);border-radius:10px;font:inherit}
+#sheetBody .v19-share-row{gap:12px;align-items:center}
+#sheetBody .v19-share-row>div{min-width:0;overflow-wrap:anywhere}
+#sheetBody .v19-share-row>.btn{flex-shrink:0;min-height:44px}

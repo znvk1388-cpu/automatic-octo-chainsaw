@@ -23,7 +23,7 @@
  *      周统计与今日重点模块，离线使用同一版本。
  */
 const CACHE_PREFIX = 'rigongyizhu-standalone-';
-const VERSION = CACHE_PREFIX + '63.2';
+const VERSION = CACHE_PREFIX + '63.6';
 const APP_BASE = new URL('./', self.location.href);
 // An incomplete new shell must not replace the last working offline version.
 // Cache.addAll writes this group atomically and rejects the installation on failure.
@@ -32,12 +32,17 @@ const REQUIRED = [
   './assets/app.css?v=63',
   './assets/product.css?v=63',
   './assets/v63.css?v=63',
+  './assets/diary-conflicts.css?v=63',
   './assets/icons.svg',
   './src/history-engine.js?v=63',
   './src/backup-confirm.js?v=63',
+  './src/diary-conflicts.js?v=63',
   './src/app.bundle.js?v=63',
   './src/weekly-metrics.js?v=63',
   './src/daily-focus.js?v=63',
+  './src/habit-drafts.js?v=63',
+  './src/sheet-navigation.js?v=63',
+  './src/habit-trash.js?v=63',
   './src/chunk-diary.js?v=63',
   './src/chunk-grow.js?v=63',
   './src/chunk-social.js?v=63',

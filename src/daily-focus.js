@@ -41,6 +41,8 @@
     if (root.Engine.isMiniDone && root.Engine.isMiniDone(item, today())) return '轻量完成';
     if (root.Engine.isDone(item, today())) return '已完成';
     if (prerequisite(item)) return '等待前置习惯';
+    var timer = item.type === 'duration' && root.Timer && root.Timer.isFor(item.id) && root.Timer.active && root.Timer.active();
+    if (timer) return timer.running ? '计时中' : '已暂停';
     if (root.Engine.isPartial && root.Engine.isPartial(item, today())) return '部分完成';
     var log = root.Engine.getLog(today(), item.id);
     return log && Number(log.v) > 0 ? '已开始' : '待完成';
@@ -67,7 +69,8 @@
     var text = item.type === 'check' || item.type === 'avoid' ? '完成打卡' : '记一笔';
     if (item.type === 'duration') {
       action = root.Timer && root.Timer.isFor(item.id) ? 'timeropen' : 'timerstart';
-      text = action === 'timeropen' ? '查看计时' : '开始计时';
+      var timer = action === 'timeropen' && root.Timer.active && root.Timer.active();
+      text = action === 'timeropen' ? (timer && !timer.running ? '继续计时' : '查看计时') : '开始计时';
     }
     result += '<div class="v63-focus-actions">' + (done ?
       '<button class="btn sm ghost" data-v63-focus="note" data-id="' + esc(item.id) + '">' + (note ? '修改这一句' : '记一句收获') + '</button>' :

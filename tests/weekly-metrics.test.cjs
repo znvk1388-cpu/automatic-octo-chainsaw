@@ -277,3 +277,65 @@ test('actual lazy verdict and risk series use weekly plan quotas',()=>{
 test('weekly insight patch is deterministic and idempotent',()=>{
   assert.equal(patchGrowWeekly(grow),grow);
 });
+
+
+test('review shows per-habit weekly quota, skips, and escaped detail actions',()=>{
+  const a=app(), w=habit('weekly',{type:'timesPerWeek',n:3}), d=habit('daily',{type:'daily'},'2026-10-26');
+  w.name='<img src=x onerror=bad>';
+  a.setState([w,d],{'2026-10-26':{weekly:{d:true,v:1},daily:{s:1}},'2026-10-27':{weekly:{d:true,v:1},daily:{d:true,v:1}}});
+  const html=a.Product.insights();
+  assert.match(html,/本周逐项进度/);
+  assert.match(html,/周目标：2 \/ 3 次/);
+  assert.match(html,/请假 1 天/);
+  assert.match(html,/data-act="habitdetail"/);
+  assert.ok(!html.includes('<img'));
+  assert.match(html,/&lt;img/);
+});
+
+test('weekly breakdown does not list future-only or deleted habits',()=>{
+  const a=app(), future=habit('future',{type:'daily'},'2026-11-01'), removed=habit('removed');
+  future.name='未来习惯'; removed.deleted=true; removed.name='删除习惯';
+  a.setState([future,removed],{});
+  const html=a.Product.insights();
+  assert.ok(!html.includes('未来习惯'));
+  assert.ok(!html.includes('删除习惯'));
+});
+
+
+test('weekly breakdown preserves extra completions and caps goal progress',()=>{
+  const a=app(), h=habit('weekly',{type:'timesPerWeek',n:2});
+  a.setState([h],logsFor(h,['2026-10-26','2026-10-27','2026-10-28']));
+  const html=a.Product.insights();
+  assert.match(html,/周目标：2 \/ 2 次 · 实际完成 3 次/);
+  assert.match(html,/本周目标已达成/);
+  assert.ok(!html.includes('value="150"'));
+});
+
+test('fully skipped daily plans do not claim completion',()=>{
+  const a=app(), h=habit('daily',{type:'daily'},'2026-10-26');
+  a.setState([h],{'2026-10-26':{daily:{s:1}},'2026-10-27':{daily:{s:1}},'2026-10-28':{daily:{s:1}}});
+  const html=a.Product.insights();
+  assert.match(html,/本周暂无计入的计划/);
+  assert.match(html,/请假 3 天/);
+  assert.ok(!html.includes('已过去的计划均已完成'));
+});
+
+
+test('review marks days without a plan as neutral and keeps their history action',()=>{
+  const a=app(),h=habit('daily',{type:'daily'},'2026-10-28');
+  a.setState([h],logsFor(h,['2026-10-28']));
+  const html=a.Product.insights();
+  assert.match(html,/data-date="2026-10-27" aria-label="[^"]*无计划/);
+  assert.match(html,/<span>—<\/span>/);
+  assert.match(html,/当天打卡 1\/1/);
+});
+
+test('weekly detail keeps the user fold choice through a rerender',()=>{
+  const a=app(),h=habit();a.setState([h],logsFor(h,['2026-10-28']));
+  a.Product.setFold('weekbreakdown',false);
+  let html=a.Product.insights();
+  assert.match(html,/<details class="p-chart-card v63-week-breakdown" data-fold="weekbreakdown">/);
+  a.Product.setFold('weekbreakdown',true);
+  html=a.Product.insights();
+  assert.match(html,/data-fold="weekbreakdown" open>/);
+});

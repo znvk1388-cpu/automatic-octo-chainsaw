@@ -292,6 +292,25 @@
           .replace('<div class="p-progress-line">', '<div class="p-progress-line" title="今日打卡率只统计今天的记录；周目标达成率请看回顾">');
       };
     }
+    function breakdown(from, today) {
+      var rows = items().map(function (item) {
+        var metric = itemRange(item, from, today), skipped = 0;
+        dates(from, today, function (day) {
+          if (E.isDue(item, day) && E.isSkipped(day, item.id)) skipped++;
+        });
+        if (!metric.total && !metric.actualDone && !skipped) return '';
+        var label = weekly(item, today) ? '周目标：' : '截至今日计划：';
+        var state = !metric.total ? '本周暂无计入的计划' : metric.done >= metric.total ? (weekly(item, today) ? '本周目标已达成' : '已过去的计划均已完成') : '本周还在继续';
+        return '<div class="line-cell" style="flex-wrap:wrap;gap:8px">' +
+          '<div style="flex:1;min-width:140px;overflow-wrap:anywhere"><strong>' + U.esc(item.name) + '</strong>' +
+          '<p class="muted">' + label + metric.done + ' / ' + metric.total + ' 次 · 实际完成 ' + metric.actualDone + ' 次</p>' +
+          '<progress style="width:100%" max="100" value="' + metric.pct + '" aria-label="' + U.esc(item.name) + '本周目标进度 ' + metric.pct + '%"></progress>' +
+          '<p class="muted">' + state + (skipped ? ' · 请假 ' + skipped + ' 天（不计未完成）' : '') + '</p></div>' +
+          '<button class="btn sm ghost" data-act="habitdetail" data-id="' + U.esc(item.id) + '" aria-label="查看' + U.esc(item.name) + '详情">查看详情</button></div>';
+      }).filter(Boolean);
+      if (!rows.length) return '';
+      return '<details class="p-chart-card v63-week-breakdown" data-fold="weekbreakdown"' + (P.foldOpen('weekbreakdown', true) ? ' open' : '') + '><summary>本周逐项进度</summary><p class="muted">日计划只计算到今天；周目标覆盖本周，未来日期不会算作漏做。请假与休息不算失败。</p>' + rows.join('') + '</details>';
+    }
     if (P) P.insights = function () {
       var today = U.today(), from = U.weekStartOf(today), span = U.daysBetween(from, today) + 1;
       var current = periodRate(from, today), previousFrom = U.shiftYmd(from, -7);
@@ -315,9 +334,11 @@
         '<div><span>本周有行动的日子</span><b>' + active + '<small> / ' + span + ' 天</small></b><p>做过，就留下了痕迹</p></div></div>' +
         '<section class="p-chart-card"><div class="p-card-title"><h3>最近 7 天</h3><span>每日打卡率 · 点击查看当天记录</span></div><div class="p-bars">' +
         rows.map(function (row) {
-          return '<button class="p-bar-column" data-product="history" data-date="' + row.date + '" aria-label="' + esc(U.prettyDate(row.date)) + '，当天打卡 ' + row.done + '/' + row.total + '，打卡率 ' + row.pct + '%">' +
-            '<span>' + row.pct + '%</span><div class="p-bar-track"><i style="height:' + row.pct + '%"></i></div><small>' + U.parseYmd(row.date).getDate() + '日</small></button>';
-        }).join('') + '</div></section>';
+          var neutral = !row.total && !row.done;
+          var label = neutral ? '无计划，点击查看当天记录' : '当天打卡 ' + row.done + '/' + row.total + '，打卡率 ' + row.pct + '%';
+          return '<button class="p-bar-column' + (neutral ? ' v63-no-plan' : '') + '" data-product="history" data-date="' + row.date + '" aria-label="' + esc(U.prettyDate(row.date)) + '，' + label + '">' +
+            '<span>' + (neutral ? '—' : row.pct + '%') + '</span><div class="p-bar-track"><i style="height:' + row.pct + '%"></i></div><small>' + U.parseYmd(row.date).getDate() + '日</small></button>';
+        }).join('') + '</div></section>' + breakdown(from, today);
     };
     E.bustCache();
     if (S.isHydrated && S.isHydrated() && root.UI && root.UI.render) {
