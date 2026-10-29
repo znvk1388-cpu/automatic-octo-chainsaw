@@ -31,6 +31,10 @@
     var item = find(id);
     if (!item) return {ok: false, msg: '找不到这个习惯，记录可能尚未同步'};
     if (!item.deleted) return {ok: false, msg: '这个习惯已经恢复'};
+    var name = String(item.name || '').trim();
+    if (!item.archived && name && (state().items || []).some(function (other) {
+      return other.id !== id && !other.deleted && !other.archived && String(other.name || '').trim() === name;
+    })) return {ok: false, msg: '已有同名习惯，请先修改现有习惯的名字或归档，再恢复这条记录'};
     var hasLinks = Array.isArray(item.trashBundles), links = hasLinks ? item.trashBundles : [];
     var skipped = 0;
     root.Store.commit(function (data) {

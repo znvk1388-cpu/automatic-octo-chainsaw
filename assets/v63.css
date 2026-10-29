@@ -71,3 +71,6 @@
 
 #sheetBody .input[aria-invalid="true"],#sheetBody .chip[aria-invalid="true"]{border-color:var(--danger);box-shadow:0 0 0 2px color-mix(in srgb,var(--danger) 16%,transparent)}
 #sheetBody .p-form-err{margin:8px 0 12px}
+
+.p-diary-clear{min-height:44px;padding:8px 10px;color:var(--accent);border-radius:10px;font:inherit}
+.p-diary-clear:focus-visible{outline:2px solid var(--accent);outline-offset:2px}

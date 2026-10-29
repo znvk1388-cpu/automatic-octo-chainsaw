@@ -232,3 +232,37 @@ test('installation waits for the window core event and attaches the click listen
   app.click('restore', 'reading');
   assert.equal(app.data.items[0].deleted, false);
 });
+
+test('restoring an active habit refuses a duplicate name without changing logs or bundles', () => {
+  const input = fixture(); input.items[0].archived = false;
+  const app = setup(input); app.trash.remove('reading');
+  app.c.Store.commit(data => data.items.push({id:'replacement',name:' 测试阅读 ',deleted:false,archived:false}));
+  const before = plain(app.data), rev = app.c.Store.rev;
+  const result = app.trash.restore('reading');
+  assert.equal(result.ok, false);
+  assert.match(result.msg, /同名|名字/);
+  assert.equal(app.c.Store.rev, rev);
+  assert.deepEqual(plain(app.data), before);
+  app.click('restore', 'reading');
+  assert.match(app.messages.at(-1), /同名|名字/);
+  assert.equal(app.data.items[0].deleted, true);
+  app.c.Store.commit(data => { data.items.find(item => item.id==='replacement').name='另一个习惯'; });
+  assert.equal(app.trash.restore('reading').ok, true);
+  assert.equal(app.data.items[0].id, 'reading');
+  assert.deepEqual(plain(app.data.bundles[0].itemIds), ['walk', 'reading', 'water']);
+  assert.equal(app.data.logs['2026-10-27'].reading.note, '虚构记录');
+});
+
+test('an archived or deleted namesake does not block restoration', () => {
+  const input = fixture(); input.items[0].archived = false;
+  const app = setup(input); app.trash.remove('reading');
+  app.c.Store.commit(data => data.items.push({id:'archived-same',name:'测试阅读',archived:true},{id:'deleted-same',name:'测试阅读',deleted:true}));
+  assert.equal(app.trash.restore('reading').ok, true);
+});
+
+test('restoring an archived habit keeps it archived even with an active namesake', () => {
+  const app = setup(); app.trash.remove('reading');
+  app.c.Store.commit(data => data.items.push({id:'active-same',name:'测试阅读'}));
+  assert.equal(app.trash.restore('reading').ok, true);
+  assert.equal(app.data.items.find(item => item.id==='reading').archived, true);
+});
