@@ -65,3 +65,9 @@
 #sheetBody .v19-share-row{gap:12px;align-items:center}
 #sheetBody .v19-share-row>div{min-width:0;overflow-wrap:anywhere}
 #sheetBody .v19-share-row>.btn{flex-shrink:0;min-height:44px}
+
+/* The always-visible habits search must not inherit the collapsed home search. */
+.p-search.p-search-wide{display:flex;min-height:44px}
+
+#sheetBody .input[aria-invalid="true"],#sheetBody .chip[aria-invalid="true"]{border-color:var(--danger);box-shadow:0 0 0 2px color-mix(in srgb,var(--danger) 16%,transparent)}
+#sheetBody .p-form-err{margin:8px 0 12px}
