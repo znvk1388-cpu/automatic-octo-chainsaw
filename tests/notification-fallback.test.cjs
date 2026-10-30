@@ -19,3 +19,13 @@ test('other notification body taps retain normal focus and do not mark a habit',
 test('existing explicit check URL keeps its current behavior for calendar links',()=>{
  const f=fixture();f.root.Remind.handleClick('?check=habit');assert.equal(f.state().toggles,1);assert.equal(f.state().saves,1);
 });
+
+test('no active worker falls back to page notification instead of waiting indefinitely',async()=>{
+ const f=fixture();f.ctx.navigator.serviceWorker={getRegistration:async()=>undefined,get ready(){throw Error('must not wait indefinitely')}};
+ f.root.Remind.fire('提醒','请记录',{url:'./?check=habit'});await new Promise(resolve=>setImmediate(resolve));assert.ok(f.getNotification());
+});
+test('active worker receives reminder identity and actions without changing logs',async()=>{
+ const f=fixture();let received;f.ctx.navigator.serviceWorker={getRegistration:async()=>({active:{},showNotification:async(title,options)=>received=options})};
+ f.root.Remind.fire('提醒','请记录',{url:'./?check=habit',id:'habit',actions:[{action:'snooze',title:'稍后'}]});await new Promise(resolve=>setImmediate(resolve));
+ assert.equal(received.data.id,'habit');assert.equal(received.actions[0].action,'snooze');assert.equal(f.state().toggles,0);
+});

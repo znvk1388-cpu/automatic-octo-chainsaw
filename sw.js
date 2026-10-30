@@ -24,7 +24,7 @@
  *      周统计与今日重点模块，离线使用同一版本。
  */
 const CACHE_PREFIX = 'rigongyizhu-standalone-';
-const VERSION = CACHE_PREFIX + '64.3';
+const VERSION = CACHE_PREFIX + '64.4';
 const APP_BASE = new URL('./', self.location.href);
 // An incomplete new shell must not replace the last working offline version.
 // Cache.addAll writes this group atomically and rejects the installation on failure.
@@ -38,6 +38,7 @@ const REQUIRED = [
   './assets/icons.svg',
   './src/history-engine.js?v=64',
   './src/backup-confirm.js?v=64',
+  './src/notification-routing.js?v=64',
   './src/diary-conflicts.js?v=64',
   './src/app.bundle.js?v=64',
   './src/weekly-metrics.js?v=64',
@@ -136,3 +137,30 @@ self.addEventListener('fetch', (event) => {
   })());
 });
 
+
+// Reuse app windows without reloading an in-progress editor.
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  event.waitUntil((async () => {
+    const data = event.notification.data || {};
+    let original;
+    try { original = new URL(data.url || './', APP_BASE); } catch (_) { original = APP_BASE; }
+    if (original.origin !== APP_BASE.origin || ![APP_BASE.pathname, APP_BASE.pathname + 'index.html'].includes(original.pathname)) original = APP_BASE;
+    const target = new URL(APP_BASE.href);
+    const id = original.searchParams.get('reminder') || original.searchParams.get('check') || '';
+    if (event.action === 'snooze' && id) target.searchParams.set('snooze', id);
+    else if (id) target.searchParams.set('reminder', id);
+    else if (['#diary', '#grow'].includes(original.hash)) target.hash = original.hash;
+    const clients = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+    for (const client of clients) {
+      const url = new URL(client.url);
+      if (url.origin !== APP_BASE.origin || ![APP_BASE.pathname, APP_BASE.pathname + 'index.html'].includes(url.pathname)) continue;
+      try {
+        await client.focus();
+        client.postMessage({ type: 'remind-open', url: target.href });
+        return;
+      } catch (_) { /* A closing window should not swallow the notification. */ }
+    }
+    await self.clients.openWindow(target.href);
+  })());
+});
