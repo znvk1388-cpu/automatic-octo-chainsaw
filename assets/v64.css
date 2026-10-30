@@ -1,0 +1,143 @@
+/* v64 · 破戒前后：触发原因薄条 + 90 秒缓冲 */
+.rg-reason-bar {
+  position: fixed;
+  left: 12px;
+  right: 12px;
+  bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+  z-index: 60;
+  padding: 12px 14px 10px;
+  border-radius: 16px;
+  background: var(--card, #fff);
+  box-shadow: 0 10px 30px rgba(20, 22, 32, .18);
+  border: 1px solid var(--line, rgba(20, 22, 32, .08));
+}
+.rg-reason-q {
+  font-size: 13.5px;
+  font-weight: 650;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.rg-reason-q span {
+  font-weight: 400;
+  font-size: 12px;
+  color: var(--txt-3, #8d92a5);
+}
+.rg-reason-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+.rg-chip {
+  border: 1px solid var(--line, rgba(20, 22, 32, .12));
+  background: transparent;
+  color: var(--txt, #1b1d26);
+  border-radius: 999px;
+  padding: 7px 13px;
+  font-size: 13px;
+  line-height: 1.2;
+  cursor: pointer;
+}
+.rg-chip.on {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-soft, rgba(99, 102, 241, .1));
+}
+.rg-reason-skip {
+  display: block;
+  margin: 10px auto 0;
+  background: none;
+  border: 0;
+  color: var(--txt-3, #8d92a5);
+  font-size: 12.5px;
+  padding: 8px 10px;
+  cursor: pointer;
+}
+.rg-reason-chips-sheet { margin: 14px 0 4px; }
+.rg-reason-stat {
+  margin-top: 14px;
+  font-size: 12.5px;
+  color: var(--txt-2, #5b6178);
+  background: var(--bg-2, rgba(20, 22, 32, .04));
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+.rg-menu-reason, .rg-menu-urge { margin-top: 8px; }
+
+.rg-urge { text-align: center; padding: 4px 0 0; }
+.rg-urge-ring { position: relative; width: 168px; height: 168px; margin: 6px auto 4px; }
+.rg-urge-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.rg-urge-bg { fill: none; stroke: var(--line, rgba(20, 22, 32, .1)); stroke-width: 8; }
+.rg-urge-fg {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 8;
+  stroke-linecap: round;
+  transition: stroke-dashoffset .25s linear;
+}
+.rg-urge-num {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+.rg-urge-num b { font-size: 40px; font-weight: 700; letter-spacing: -.02em; }
+.rg-urge-num small { font-size: 12px; color: var(--txt-3, #8d92a5); margin-top: 14px; }
+.rg-urge-phase { font-size: 17px; font-weight: 650; margin-top: 2px; }
+.rg-urge-tip {
+  font-size: 13px;
+  color: var(--txt-2, #5b6178);
+  margin: 8px 12px 0;
+  line-height: 1.55;
+}
+.rg-urge-stat { font-size: 12.5px; color: var(--txt-3, #8d92a5); margin-top: 8px; }
+.rg-urge-acts { display: grid; gap: 8px; margin-top: 18px; }
+.rg-urge-skip {
+  display: block;
+  margin: 10px auto 0;
+  background: none;
+  border: 0;
+  color: var(--txt-3, #8d92a5);
+  font-size: 12.5px;
+  padding: 10px;
+  cursor: pointer;
+}
+@media (max-width: 360px) {
+  .rg-urge-ring { width: 148px; height: 148px; }
+  .rg-urge-num b { font-size: 34px; }
+}
+
+/* Keep privacy information and actions usable on narrow touch screens. */
+.rg-reason-bar{max-height:calc(100dvh - 24px);overflow-y:auto}
+.rg-reason-privacy{margin:6px 0 0;font-size:12.5px;line-height:1.5;color:var(--txt-2)}
+.rg-chip,.rg-reason-skip{min-height:44px}
+
+body:has(#sheet.on) #rgReasonBar{display:none}
+
+/* The same breathing flow is reachable directly from either today layout. */
+.rg-urge-entry {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  margin-top: 8px;
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--bg-2);
+  color: var(--txt-2);
+  font: inherit;
+  font-size: 13px;
+  line-height: 1.4;
+  cursor: pointer;
+}
+.rg-urge-entry:active { background: var(--accent-soft); color: var(--accent); }
+.rg-urge-entry:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.rg-urge-entry-grid { width: 100%; margin-top: 6px; padding-inline: 4px; }
+.rg-urge-habit { margin: 0 0 8px; color: var(--txt-2); font-size: 14px; line-height: 1.5; overflow-wrap: anywhere; }
+.rg-urge-skip { min-height: 44px; }
+
+.p-grid .p-tile-name { min-height: 2.7em; }

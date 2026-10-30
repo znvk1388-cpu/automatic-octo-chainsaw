@@ -6,7 +6,7 @@ const vm = require('node:vm');
 
 const source = fs.readFileSync(path.join(__dirname, '..', 'sw.js'), 'utf8');
 const base = 'https://example.github.io/rigongyizhu/';
-const currentCache = 'rigongyizhu-standalone-63.8';
+const currentCache = 'rigongyizhu-standalone-64.3';
 const absolute = value => new URL(typeof value === 'string' ? value : value.url, base).href;
 
 function worker({ fail = () => false } = {}) {
@@ -96,7 +96,7 @@ test('an unavailable required script rejects installation and retains the previo
 test('optional icons may fail without blocking a complete offline shell', async () => {
   const w = worker({ fail: url => url.endsWith('/assets/icon-192.png') });
   await w.lifecycle('install');
-  for (const file of ['index.html', 'assets/app.css?v=63', 'assets/product.css?v=63', 'src/history-engine.js?v=63', 'src/app.bundle.js?v=63', 'src/weekly-metrics.js?v=63', 'src/chunk-diary.js?v=63', 'src/chunk-grow.js?v=63', 'src/chunk-social.js?v=63', 'src/chunk-plus.js?v=63']) {
+  for (const file of ['index.html', 'assets/app.css?v=64', 'assets/product.css?v=64', 'src/history-engine.js?v=64', 'src/app.bundle.js?v=64', 'src/weekly-metrics.js?v=64', 'src/chunk-diary.js?v=64', 'src/chunk-grow.js?v=64', 'src/chunk-social.js?v=64', 'src/chunk-plus.js?v=64']) {
     assert.ok(w.stores.get(currentCache).has(base + file), file + ' is precached');
   }
   assert.equal(w.skips, 0, 'install waits for user consent to switch versions');
@@ -178,10 +178,10 @@ test('actual OAuth implementation returns to the repository subpath rather than 
 test('actual dynamic SDK URL uses the same version as the offline precache', async () => {
   const c = cloudHarness();
   await c.sandbox.window.Cloud.wechatLogin();
-  assert.equal(c.sandbox.U.VERSION, '63');
-  assert.equal(c.sdkURL, base + 'vendor/cloud-sdk.js?v=63');
+  assert.equal(c.sandbox.U.VERSION, '64');
+  assert.equal(c.sdkURL, base + 'vendor/cloud-sdk.js?v=64');
   const w = worker();
-  assert.ok(w.resources.optional.includes('./vendor/cloud-sdk.js?v=63'));
+  assert.ok(w.resources.optional.includes('./vendor/cloud-sdk.js?v=64'));
 });
 
 test('all precache resources exist in the release directory and use one release version', () => {
@@ -191,10 +191,10 @@ test('all precache resources exist in the release directory and use one release 
     const parsed = new URL(resource, base);
     const relative = decodeURIComponent(parsed.pathname.slice(new URL(base).pathname.length));
     assert.ok(fs.statSync(path.join(root, relative)).isFile(), relative + ' exists');
-    if (parsed.searchParams.has('v')) assert.equal(parsed.searchParams.get('v'), '63', resource);
+    if (parsed.searchParams.has('v')) assert.equal(parsed.searchParams.get('v'), '64', resource);
   }
   const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
-  for (const script of ['src/history-engine.js?v=63', 'src/backup-confirm.js?v=63', 'src/app.bundle.js?v=63', 'src/weekly-metrics.js?v=63', 'src/daily-focus.js?v=63']) {
+  for (const script of ['src/history-engine.js?v=64', 'src/backup-confirm.js?v=64', 'src/app.bundle.js?v=64', 'src/weekly-metrics.js?v=64', 'src/daily-focus.js?v=64', 'src/relapse-reason.js?v=64', 'src/urge-relief.js?v=64', 'assets/v64.css?v=64']) {
     assert.ok(html.includes(script), script + ' is linked by the app shell');
     assert.ok(w.resources.required.includes('./' + script), script + ' is required offline');
   }

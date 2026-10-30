@@ -19,34 +19,38 @@
  *      拆成 4 个按需 chunk，core 首屏跑完空闲时再拉，离线清单里照常预缓存）。
  * v62：细节顺一点（按钮不再断字 / 模板包不再裁字 / 深色层次拉开 /
  *      窄屏计数器不被压扁 / 「更多功能」补齐 8 个工具）。
+ * v64：破戒后可记触发原因；戒断习惯可先撑 90 秒再决定。
  * v63：核心资源完整才安装新版；缓存清理限于本应用；支持独立历史、
  *      周统计与今日重点模块，离线使用同一版本。
  */
 const CACHE_PREFIX = 'rigongyizhu-standalone-';
-const VERSION = CACHE_PREFIX + '63.8';
+const VERSION = CACHE_PREFIX + '64.3';
 const APP_BASE = new URL('./', self.location.href);
 // An incomplete new shell must not replace the last working offline version.
 // Cache.addAll writes this group atomically and rejects the installation on failure.
 const REQUIRED = [
   './index.html',
-  './assets/app.css?v=63',
-  './assets/product.css?v=63',
-  './assets/v63.css?v=63',
-  './assets/diary-conflicts.css?v=63',
+  './assets/app.css?v=64',
+  './assets/product.css?v=64',
+  './assets/v63.css?v=64',
+  './assets/v64.css?v=64',
+  './assets/diary-conflicts.css?v=64',
   './assets/icons.svg',
-  './src/history-engine.js?v=63',
-  './src/backup-confirm.js?v=63',
-  './src/diary-conflicts.js?v=63',
-  './src/app.bundle.js?v=63',
-  './src/weekly-metrics.js?v=63',
-  './src/daily-focus.js?v=63',
-  './src/habit-drafts.js?v=63',
-  './src/sheet-navigation.js?v=63',
-  './src/habit-trash.js?v=63',
-  './src/chunk-diary.js?v=63',
-  './src/chunk-grow.js?v=63',
-  './src/chunk-social.js?v=63',
-  './src/chunk-plus.js?v=63',
+  './src/history-engine.js?v=64',
+  './src/backup-confirm.js?v=64',
+  './src/diary-conflicts.js?v=64',
+  './src/app.bundle.js?v=64',
+  './src/weekly-metrics.js?v=64',
+  './src/daily-focus.js?v=64',
+  './src/habit-drafts.js?v=64',
+  './src/sheet-navigation.js?v=64',
+  './src/habit-trash.js?v=64',
+  './src/relapse-reason.js?v=64',
+  './src/urge-relief.js?v=64',
+  './src/chunk-diary.js?v=64',
+  './src/chunk-grow.js?v=64',
+  './src/chunk-social.js?v=64',
+  './src/chunk-plus.js?v=64',
 ];
 const OPTIONAL = [
   './manifest.webmanifest',
@@ -54,7 +58,7 @@ const OPTIONAL = [
   './assets/icon-192.png',
   './assets/icon-512.png',
   './assets/apple-touch-icon.png',
-  './vendor/cloud-sdk.js?v=63',
+  './vendor/cloud-sdk.js?v=64',
 ];
 
 self.addEventListener('install', (event) => {
