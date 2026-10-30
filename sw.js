@@ -24,7 +24,7 @@
  *      周统计与今日重点模块，离线使用同一版本。
  */
 const CACHE_PREFIX = 'rigongyizhu-standalone-';
-const VERSION = CACHE_PREFIX + '64.4';
+const VERSION = CACHE_PREFIX + '64.5';
 const APP_BASE = new URL('./', self.location.href);
 // An incomplete new shell must not replace the last working offline version.
 // Cache.addAll writes this group atomically and rejects the installation on failure.
@@ -41,6 +41,7 @@ const REQUIRED = [
   './src/notification-routing.js?v=64',
   './src/diary-conflicts.js?v=64',
   './src/app.bundle.js?v=64',
+  './src/feature-loading.js?v=64',
   './src/weekly-metrics.js?v=64',
   './src/daily-focus.js?v=64',
   './src/habit-drafts.js?v=64',

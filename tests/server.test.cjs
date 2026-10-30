@@ -34,7 +34,7 @@ test('server routes deliver the complete app without exposing runtime data', asy
   const page=await request('/');
   assert.equal(page.status,200);
   const scripts=[...page.body.matchAll(/<script defer src="([^"]+)"/g)].map(match=>match[1]);
-  assert.deepEqual(scripts,['src/history-engine.js?v=64','src/backup-confirm.js?v=64','src/diary-conflicts.js?v=64','src/notification-routing.js?v=64','src/app.bundle.js?v=64','src/weekly-metrics.js?v=64','src/daily-focus.js?v=64','src/habit-drafts.js?v=64','src/sheet-navigation.js?v=64','src/habit-trash.js?v=64','src/relapse-reason.js?v=64','src/urge-relief.js?v=64']);
+  assert.deepEqual(scripts,['src/history-engine.js?v=64','src/backup-confirm.js?v=64','src/diary-conflicts.js?v=64','src/notification-routing.js?v=64','src/app.bundle.js?v=64','src/feature-loading.js?v=64','src/weekly-metrics.js?v=64','src/daily-focus.js?v=64','src/habit-drafts.js?v=64','src/sheet-navigation.js?v=64','src/habit-trash.js?v=64','src/relapse-reason.js?v=64','src/urge-relief.js?v=64']);
   for(const resource of [...scripts,'assets/v63.css?v=64','assets/v64.css?v=64','assets/icon-192.png','manifest.webmanifest','sw.js']){
     const response=await request('/'+resource);
     assert.equal(response.status,200,resource+' is served');

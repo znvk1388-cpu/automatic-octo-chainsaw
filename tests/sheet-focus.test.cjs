@@ -1,0 +1,8 @@
+const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),path=require('node:path');
+const s=fs.readFileSync(path.join(__dirname,'../src/app.bundle.js'),'utf8');
+function fixture(opener=true){const events=[];let open=true;const view={setAttribute(){},focus(){events.push('focus-view');doc.activeElement=this}};const trigger={isConnected:opener,focus(){events.push('focus-opener');doc.activeElement=this}};
+const sheet={inert:false,classList:{contains(){return open},remove(){open=false;events.push('hide-class')}},setAttribute(){events.push('aria-hidden');assert.notEqual(doc.activeElement,sheet,'focus must move before hiding')},contains(el){return el===this}};
+const doc={activeElement:sheet,body:{style:{}},removeEventListener(){}};const nodes={sheet,sheetMask:{classList:{remove(){}}},app:{inert:true},view};const ctx={ct:trigger,lt:'',window:{},kt(){},p:id=>nodes[id],document:doc,pt(){}};vm.createContext(ctx);vm.runInContext(s.slice(s.indexOf('function vt(){'),s.indexOf('function gt(',s.indexOf('function vt(){')))+';this.close=vt;',ctx);return {ctx,sheet,events,view,doc}};
+test('closing a sheet restores opener before hiding and makes sheet inert',()=>{const f=fixture();f.ctx.close();assert.equal(f.events[0],'focus-opener');assert.equal(f.sheet.inert,true)});
+test('removed opener falls back to main content instead of hidden sheet',()=>{const f=fixture(false);f.ctx.close();assert.equal(f.doc.activeElement,f.view)});
+test('closing an already closed sheet does not steal focus again',()=>{const f=fixture();f.ctx.close();f.events.length=0;f.ctx.close();assert.deepEqual(f.events,[])});
