@@ -6,7 +6,7 @@ const vm = require('node:vm');
 
 const source = fs.readFileSync(path.join(__dirname, '..', 'sw.js'), 'utf8');
 const base = 'https://example.github.io/rigongyizhu/';
-const currentCache = 'rigongyizhu-standalone-64.5';
+const currentCache = 'rigongyizhu-standalone-64.6';
 const absolute = value => new URL(typeof value === 'string' ? value : value.url, base).href;
 
 function worker({ fail = () => false } = {}) {

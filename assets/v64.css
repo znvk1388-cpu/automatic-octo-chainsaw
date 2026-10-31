@@ -141,3 +141,28 @@ body:has(#sheet.on) #rgReasonBar{display:none}
 .rg-urge-skip { min-height: 44px; }
 
 .p-grid .p-tile-name { min-height: 2.7em; }
+
+/* Grid actions are separate touch targets, so opening the menu cannot hit the check-in. */
+.p-grid .p-tile-wrap { display: flex; flex-direction: column; }
+.p-grid .p-tile { order: 0; }
+.p-grid .p-tile-more {
+  position: static;
+  order: 1;
+  width: 100%;
+  height: 44px;
+  flex: 0 0 44px;
+  margin-top: 6px;
+  gap: 4px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--card);
+  color: var(--txt-2);
+  opacity: 1;
+  font-size: 13px;
+  line-height: 1;
+  -webkit-tap-highlight-color: transparent;
+}
+.p-grid .p-tile-more::after { content: "更多"; }
+.p-grid .p-tile-more:active { background: var(--accent-soft); color: var(--accent); }
+.p-grid .p-tile-more:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.p-grid .rg-urge-entry-grid { order: 2; }

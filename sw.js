@@ -24,7 +24,7 @@
  *      周统计与今日重点模块，离线使用同一版本。
  */
 const CACHE_PREFIX = 'rigongyizhu-standalone-';
-const VERSION = CACHE_PREFIX + '64.5';
+const VERSION = CACHE_PREFIX + '64.6';
 const APP_BASE = new URL('./', self.location.href);
 // An incomplete new shell must not replace the last working offline version.
 // Cache.addAll writes this group atomically and rejects the installation on failure.
