@@ -247,3 +247,98 @@ body:has(#sheet.on) #rgReasonBar{display:none}
   white-space: nowrap;
   clip-path: inset(50%);
 }
+
+/* Tablet navigation reuses the existing destinations and keeps labels visible. */
+@media (min-width: 768px) and (max-width: 1049px) {
+  .p-sidebar {
+    display: flex;
+    position: fixed;
+    inset: 0 auto 0 0;
+    width: 96px;
+    padding: calc(18px + env(safe-area-inset-top, 0px)) 10px calc(16px + var(--safe-b));
+    flex-direction: column;
+    gap: 14px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    background: var(--card);
+    border-right: 1px solid var(--line);
+    z-index: 42;
+  }
+  .p-brand { display: flex; justify-content: center; padding-bottom: 4px; }
+  .p-brand img { width: 40px; height: 40px; border-radius: 12px; }
+  .p-brand div { display: none; }
+  .p-nav-group { display: flex; flex-direction: column; gap: 8px; }
+  .p-nav-button {
+    display: flex;
+    flex: none;
+    min-height: 60px;
+    padding: 9px 2px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    border-radius: 12px;
+    color: var(--txt-2);
+    font-size: 12px;
+    line-height: 1.4;
+    text-align: center;
+  }
+  .p-nav-button .p-icon { width: 23px; height: 23px; }
+  .p-nav-button.active { background: var(--accent-soft); color: var(--accent); font-weight: 650; }
+  .p-nav-label { padding-top: 8px; border-top: 1px solid var(--line); font-size: 12px; color: var(--txt-3); text-align: center; }
+  #pStorage { margin-top: auto; padding-top: 12px; border-top: 1px solid var(--line); }
+  #pStorage .p-storage-status { display: block; text-align: center; line-height: 1.5; }
+  #pStorage .p-status-dot { display: block; margin: 0 auto 5px; }
+  #pStorage .p-storage-status small { line-height: 1.5; }
+  #app { margin-left: 96px; width: calc(100% - 96px); max-width: none; min-height: 100dvh; padding-bottom: 20px; }
+  .p-mobile-storage, .tabbar { display: none; }
+  .topbar { padding-inline: 24px; }
+  .topbar-inner { max-width: 712px; margin-inline: auto; padding-inline: 0; }
+  .view { max-width: 760px; padding: 24px 24px 40px; }
+  .fab { right: 24px; bottom: calc(24px + var(--safe-b)); }
+  .sheet {
+    left: 112px;
+    right: 16px;
+    bottom: 50%;
+    max-width: 660px;
+    max-height: calc(100dvh - 48px);
+    border-radius: 20px;
+    transform: translateY(calc(50% + 120vh));
+  }
+  .sheet.on { transform: translateY(50%); }
+}
+
+/* Let long habit names breathe instead of stretching phone-sized tiles into six columns. */
+@media (min-width: 768px) and (max-width: 1199px) {
+  .p-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+  .p-grid .p-tile { padding: 18px 12px; }
+  .p-grid .p-tile-name { font-size: 14px; line-height: 1.5; min-height: 3em; }
+}
+@media (min-width: 768px) {
+  .p-nav-button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .p-nav-button:active { background: var(--accent-soft); color: var(--accent); }
+  .sheet input, .sheet textarea, .sheet select { font-size: 16px; }
+  #dyText { font-size: 16px; line-height: 1.75; }
+  .hitem .tick { min-width: 44px; min-height: 44px; }
+}
+
+/* Feedback stays inside the content pane, clear of either navigation layout. */
+.rg-reason-bar {
+  max-width: 720px;
+  margin-inline: auto;
+  bottom: calc(90px + var(--safe-b));
+  max-height: calc(100dvh - 114px - var(--safe-b));
+  overscroll-behavior: contain;
+}
+@media (min-width: 768px) {
+  .rg-reason-bar {
+    left: 112px;
+    right: 16px;
+    bottom: calc(20px + var(--safe-b));
+    max-width: 660px;
+    max-height: calc(100dvh - 40px - var(--safe-b));
+  }
+}
+@media (min-width: 1050px) {
+  .rg-reason-bar { left: 254px; right: 24px; max-width: 720px; }
+}
