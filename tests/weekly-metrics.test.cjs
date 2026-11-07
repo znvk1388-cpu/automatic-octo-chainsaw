@@ -339,3 +339,73 @@ test('weekly detail keeps the user fold choice through a rerender',()=>{
   html=a.Product.insights();
   assert.match(html,/data-fold="weekbreakdown" open>/);
 });
+
+test('week records separate flexible plans from missed daily check-ins and keep history read-only', () => {
+  const a = app();
+  const weekly = habit('weekly', {type:'timesPerWeek', n:3});
+  weekly.name = '运动';
+  const daily = habit('daily');
+  daily.type = 'number';
+  daily.target = 10;
+  daily.planHistory = [
+    {from:'2026-10-01', rule:{type:'number', target:4, schedule:{type:'daily'}}},
+    {from:'2026-10-28', rule:{type:'number', target:10, schedule:{type:'daily'}}},
+  ];
+  const recent = habit('recent', {type:'daily'}, '2026-10-28');
+  a.setState([weekly, daily, recent], {
+    '2026-10-26':{weekly:{d:true,v:1},daily:{d:true,v:4}},
+    '2026-10-27':{daily:{d:false,v:1}},
+  });
+  const before = plain(a.Store.s);
+  const week = require('../src/week-view.js')(a).build();
+  assert.deepEqual(Array.from(week.days), ['2026-10-26','2026-10-27','2026-10-28','2026-10-29','2026-10-30','2026-10-31','2026-11-01']);
+  assert.deepEqual(Array.from(week.rows[0].states.slice(0,4)), ['done','flexible','flexible','future']);
+  assert.equal(week.rows[0].goal.done,1);
+  assert.equal(week.rows[0].goal.target,3);
+  assert.deepEqual(Array.from(week.rows[1].states.slice(0,4)), ['done','partial','today','future']);
+  assert.equal(week.rows[2].states[0], 'unscheduled');
+  assert.deepEqual(plain(a.Store.s), before);
+});
+
+test('week records show historical daily misses, skips and slips without turning them into failures for other plans', () => {
+  const a = app([2026,9,29,12]);
+  const daily = habit('daily');
+  const avoid = habit('avoid');
+  avoid.type = 'avoid';
+  const weekday = habit('weekday', {type:'weekdays', days:[5]});
+  a.setState([daily,avoid,weekday], {'2026-10-27':{daily:{s:true},avoid:{slip:1,d:false,v:0}}});
+  const week = require('../src/week-view.js')(a).build();
+  assert.equal(week.rows[0].states[0], 'miss');
+  assert.equal(week.rows[0].states[1], 'skip');
+  assert.equal(week.rows[1].states[1], 'slip');
+  assert.equal(week.rows[2].states[0], 'unscheduled');
+});
+
+test('week navigation honors Sunday start and never creates a future date action', () => {
+  const a = app();
+  const h = habit();
+  h.name = '<img src=x onerror=alert(1)>';
+  a.setState([h], {}, 0);
+  const weekView = require('../src/week-view.js')(a);
+  const week = weekView.build();
+  assert.equal(week.days[0], '2026-10-25');
+  const html = weekView.render(week);
+  assert.match(html, /data-product="history" data-date="2026-10-28"/);
+  assert.doesNotMatch(html, /data-date="2026-10-29"|<img src=x/);
+  assert.match(html, /&lt;img/);
+});
+
+test('a weekly goal stays visible for the part of the week before a schedule change', () => {
+  const a = app();
+  const item = habit('exercise', {type:'daily'});
+  item.planHistory = [
+    {from:'2026-10-01', rule:{type:'check', schedule:{type:'timesPerWeek', n:2}}},
+    {from:'2026-10-28', rule:{type:'check', schedule:{type:'daily'}}},
+  ];
+  a.setState([item], logsFor(item,['2026-10-26']));
+  const weekView = require('../src/week-view.js')(a);
+  const week = weekView.build();
+  assert.equal(week.rows[0].goal?.done,1);
+  assert.equal(week.rows[0].goal?.target,2);
+  assert.match(weekView.render(week), /周频 1\/2 次/);
+});
