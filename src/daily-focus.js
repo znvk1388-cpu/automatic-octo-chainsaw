@@ -51,10 +51,10 @@
     var list = eligible(), item = current();
     // A first, single habit already has a clear next action. Avoid another card until chosen.
     if (!item && list.length < 2) return '';
-    var result = '<section class="v63-focus" id="v63DailyFocus" aria-labelledby="v63FocusTitle">' +
+    var result = '<section class="v63-focus' + (item ? '' : ' is-empty') + '" id="v63DailyFocus" aria-labelledby="v63FocusTitle">' +
       '<div class="v63-focus-head"><span id="v63FocusTitle"><svg class="p-icon" aria-hidden="true"><use href="assets/icons.svg#star"></use></svg>今日重点</span>' +
       '<button class="v63-focus-link" data-v63-focus="choose">' + (item ? '更换' : '选一件') + '</button></div>';
-    if (!item) return result + '<p class="v63-focus-empty">从今天的习惯里选一件，先把这一小步做好。</p></section>';
+    if (!item) return result + '</section>';
     var done = root.Engine.isDone(item, today()), label = status(item), before = done ? null : prerequisite(item);
     var note = root.Engine.noteOf ? root.Engine.noteOf(item.id, today()) : '';
     result += '<div class="v63-focus-main"><strong>' + esc(item.name) + '</strong><span class="v63-focus-state' +

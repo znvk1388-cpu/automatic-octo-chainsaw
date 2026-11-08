@@ -342,3 +342,122 @@ body:has(#sheet.on) #rgReasonBar{display:none}
 @media (min-width: 1050px) {
   .rg-reason-bar { left: 254px; right: 24px; max-width: 720px; }
 }
+
+/* Visual refinement: clear reading order, quiet surfaces, and one accent color. */
+:root {
+  --bg: #fff;
+  --bg-2: #f3f4f6;
+  --card: #fff;
+  --card-2: #f8f9fa;
+  --line: #e5e8ec;
+  --line-2: #e5e8ec;
+  --txt: #242930;
+  --txt-2: #515d6b;
+  --txt-3: #626c78;
+  --sh-1: none;
+}
+html[data-theme="dark"] {
+  --bg: #17191e;
+  --bg-2: #262a32;
+  --card: #1f232a;
+  --card-2: #252a32;
+  --line: #353c47;
+  --line-2: #353c47;
+  --txt: #edf0f4;
+  --txt-2: #b6bfcc;
+  --txt-3: #a3aebb;
+  --sh-1: none;
+}
+.view > * { animation: none; }
+.p-top-title { font-weight: 650; letter-spacing: -.02em; }
+.p-page-heading h1 { font-size: 26px; line-height: 1.4; font-weight: 650; letter-spacing: -.02em; }
+.p-page-heading .p-intro { max-width: 48em; line-height: 1.7; }
+.tabbar { border-radius: 0; box-shadow: none; }
+
+/* The page already says Today; progress and records do not need another card. */
+.p-greet { font-size: 22px; font-weight: 650; letter-spacing: -.02em; }
+.p-greet-row { margin-bottom: 10px; }
+.p-progress-line { padding: 0; min-height: 28px; border: 0; border-radius: 0; background: none; margin-bottom: 0; gap: 12px; }
+.p-pl-num, .p-pl-num b { font-size: 16px; font-weight: 600; }
+.p-pl-num::before { content: "已完成 "; font-size: 12px; font-weight: 400; color: var(--txt-3); letter-spacing: 0; }
+.p-pl-track { height: 4px; }
+.p-pl-pct {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  white-space: nowrap;
+  clip-path: inset(50%);
+}
+.p-streak-line { min-height: 44px; padding: 4px 0; font-size: 12px; margin-bottom: 0; }
+.p-streak-line .p-streak-context, .p-best-line { display: none; }
+.p-streak-line > span:last-child { font-size: 12px; white-space: nowrap; }
+.p-today-head { margin-bottom: 2px; }
+.v63-focus { border-color: var(--line); background: var(--card); box-shadow: none; }
+.v63-focus.is-empty { padding: 0; border: 0; border-radius: 0; background: none; margin-bottom: 8px; }
+.v63-focus.is-empty .v63-focus-head { min-height: 44px; }
+.v63-focus.is-empty .v63-focus-head > span { font-weight: 500; }
+.v63-focus.is-empty .p-icon { color: var(--txt-3); }
+.p-list-heading h2 { font-size: 17px; font-weight: 650; }
+.p-tools { margin-bottom: 12px; }
+.p-insight-line { padding: 8px 0; border: 0; border-radius: 0; background: none; font-size: 13px; }
+
+/* Today's habits form a single readable list, with controls in a fixed column. */
+.p-today-head ~ .list { gap: 0; border-top: 1px solid var(--line); margin-bottom: 18px; }
+.p-today-head ~ .list > .hitem {
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.p-today-head ~ .list > .hitem:active { transform: none; }
+.p-today-head ~ .list > .hitem > .h-sw-body { padding: 17px 0; gap: 12px; background: var(--bg); }
+.p-today-head ~ .list .p-habit-icon { width: 32px; height: 36px; border-radius: 0; background: transparent; }
+.p-today-head ~ .list .p-habit-icon .p-icon { width: 23px; height: 23px; }
+.p-today-head ~ .list .h-name { font-size: 15px; line-height: 1.55; font-weight: 600; white-space: normal; overflow: visible; }
+.p-today-head ~ .list .h-meta { font-size: 12px; line-height: 1.5; margin-top: 3px; }
+.p-today-head ~ .list .h-meta .m-score { display: none; }
+.p-today-head ~ .list .h-trend { font-size: 12px; line-height: 1.5; gap: 8px; margin-top: 4px; }
+.p-today-head ~ .list .h-trend .tr-st { font-weight: 500; color: var(--txt-2); }
+.p-today-head ~ .list .h-trend .tr-st small { font-size: 12px; }
+.p-today-head ~ .list .tick { min-width: 44px; min-height: 44px; border-radius: 12px; }
+.p-today-head ~ .list .tick svg { width: 18px; height: 18px; }
+.p-today-head ~ .list .p-habit-menu { color: var(--txt-3); }
+.p-today-head ~ .list .stepper { border-radius: 10px; }
+.p-today-head ~ .list .h-dots { opacity: .8; }
+
+/* An unfinished tile shows the habit; a completed tile shows its checkmark. */
+.p-tile { border-radius: 14px; box-shadow: none; padding: 18px 10px 14px; }
+.p-tile-ring { width: 56px; height: 56px; }
+.p-tile-symbol { position: relative; z-index: 1; display: grid; place-items: center; }
+.p-tile-symbol .p-habit-icon { width: 30px; height: 30px; background: none; color: var(--txt-2); }
+.p-tile-symbol .p-icon { width: 24px; height: 24px; }
+.p-tile.done .p-tile-symbol { display: none; }
+.p-tile-num { flex-direction: column; align-items: center; gap: 3px; font-size: 16px; font-weight: 600; }
+.p-tile-num small { font-size: 10px; }
+.p-tile.partial .p-tile-part { display: none; }
+.p-tile-name { font-size: 13px; line-height: 1.5; color: var(--txt); }
+.p-tile.done .p-tile-name { color: var(--txt); }
+.p-grid .p-tile-more { border-color: transparent; background: none; margin-top: 2px; font-size: 12px; }
+.p-grid .p-tile-more:active { background: var(--bg-2); }
+
+/* Secondary information remains available without competing with the habit list. */
+.home-hints { background: var(--bg-2); border-color: transparent; }
+.fold-line .p-week-card { border: 0; border-radius: 0; box-shadow: none; background: none; margin-bottom: 0; }
+.break-card .bc-come { background: none; padding: 0; color: var(--txt-2); }
+.p-review-summary { gap: 0; border-block: 1px solid var(--line); }
+.p-review-summary > div { border: 0; border-radius: 0; background: none; box-shadow: none; padding: 18px 14px; }
+.p-review-summary > div + div { border-left: 1px solid var(--line); }
+.p-review-summary > div b { font-size: 28px; font-weight: 650; }
+.p-review-summary > div p { line-height: 1.6; }
+@media (min-width: 768px) {
+  .p-sidebar { background: var(--card-2); }
+}
+@media (max-width: 520px) {
+  .p-greet { font-size: 22px; }
+  .p-pl-num, .p-pl-num b { font-size: 16px; }
+  .p-today-head ~ .list > .hitem > .h-sw-body { padding-block: 15px; }
+  .p-review-summary > div { padding-inline: 8px; }
+  .p-review-summary > div b { font-size: 25px; }
+}

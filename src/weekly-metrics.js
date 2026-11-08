@@ -325,13 +325,13 @@
       });
       var comparison = previous.total ? '比上周同期' + (delta > 0 ? '提高 ' + delta : delta < 0 ? '下降 ' + Math.abs(delta) : '持平，变化 0') + ' 个百分点' : '积累记录后，可以查看与上周同期的变化';
       var esc = U.esc, icon = function (name) { return '<svg class="p-icon" aria-hidden="true"><use href="assets/icons.svg#' + name + '"></use></svg>'; };
-      return '<div class="p-page-heading"><div><p class="p-eyebrow">看见坚持的力量</p><h1>进度回顾</h1>' +
+      return '<div class="p-page-heading"><div><h1>进度回顾</h1>' +
         '<p class="p-intro">日习惯按已过去的应执行日，周习惯按本周目标计算。下方每日打卡率只表示当天记录，周习惯空着一天不代表失约。</p></div>' +
         '<div class="p-heading-actions"><button class="btn ghost" data-act="printsheet">' + icon('clipboard') + '打印这个月</button>' +
         '<button class="btn ghost" data-act="fixdates">' + icon('calendar-dots') + '查看日历</button></div></div>' +
         '<div class="p-review-summary"><div><span>本周目标达成率</span><b>' + current.pct + '<small>%</small></b><p>' + comparison + '</p></div>' +
         '<div><span>本周实际打卡</span><b>' + current.actualDone + '</b><p>本周目标进度 ' + current.done + ' / ' + current.total + ' 次</p></div>' +
-        '<div><span>本周有行动的日子</span><b>' + active + '<small> / ' + span + ' 天</small></b><p>做过，就留下了痕迹</p></div></div>' +
+        '<div><span>本周有行动的日子</span><b>' + active + '<small> / ' + span + ' 天</small></b><p>至少完成一项计为一天</p></div></div>' +
         '<section class="p-chart-card"><div class="p-card-title"><h3>最近 7 天</h3><span>每日打卡率 · 点击查看当天记录</span></div><div class="p-bars">' +
         rows.map(function (row) {
           var neutral = !row.total && !row.done;
