@@ -461,3 +461,28 @@ html[data-theme="dark"] {
   .p-review-summary > div { padding-inline: 8px; }
   .p-review-summary > div b { font-size: 25px; }
 }
+
+/* Empty states describe the current filter and provide one relevant next action. */
+.p-empty-result {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 208px;
+  padding: 32px 16px 38px;
+  border: 0;
+  border-radius: 0;
+  background: none;
+}
+.p-empty-result > .p-icon { width: 30px; height: 30px; color: var(--txt-3); margin-bottom: 14px; }
+.p-empty-result h3 { font-size: 16px; line-height: 1.5; font-weight: 600; }
+.p-empty-result p { max-width: 30em; margin: 8px 0 18px; line-height: 1.65; }
+.p-empty-result .btn { min-height: 44px; }
+.p-tools.searching .p-search-btn { display: none; }
+.p-tools.searching .p-search { flex: 1; }
+
+/* A boundary in the ordering menu is genuinely unavailable, including by keyboard. */
+.menu-row[aria-disabled="true"] { opacity: .45; cursor: default; }
+.menu-row[aria-disabled="true"]:active { background: none; }
+.menu-row:not([aria-disabled="true"]):focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; border-radius: 10px; }
+.menu-row:not([aria-disabled="true"]):active { background: var(--bg-2); }
