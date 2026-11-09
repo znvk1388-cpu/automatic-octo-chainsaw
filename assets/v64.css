@@ -486,3 +486,52 @@ html[data-theme="dark"] {
 .menu-row[aria-disabled="true"]:active { background: none; }
 .menu-row:not([aria-disabled="true"]):focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; border-radius: 10px; }
 .menu-row:not([aria-disabled="true"]):active { background: var(--bg-2); }
+
+/* Motion follows the action: pressed controls, local success, and short modal travel. */
+:root {
+  --motion-press: 100ms;
+  --motion-release: 180ms;
+  --motion-open: 260ms;
+  --motion-close: 180ms;
+  --motion-ease: cubic-bezier(.2,.8,.2,1);
+}
+.tick, .p-tile, .p-tile-more, .stepper button, .p-nav-button, .tab, .btn, .icon-btn { touch-action: manipulation; }
+.tick { position: relative; }
+.rg-feedback-ring {
+  position: absolute;
+  inset: -5px;
+  border: 1.5px solid var(--c, var(--accent));
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 0;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .tick, .p-tile, .p-tile-more, .stepper button, .btn, .icon-btn {
+    transition: transform var(--motion-release) var(--motion-ease), background-color 120ms ease, border-color 120ms ease;
+  }
+  .tick:active, .p-tile:active, .p-tile-more:active, .stepper button:active, .btn:active, .icon-btn:active {
+    transform: scale(.96);
+    transition-duration: var(--motion-press);
+  }
+  .p-nav-button, .tab { transition: background-color 140ms ease, color 140ms ease; }
+  .p-nav-button:active, .tab:active { background: var(--accent-soft); }
+  .sheet {
+    opacity: 0;
+    transition: transform var(--motion-close) var(--motion-ease), opacity 120ms ease, visibility 0s linear var(--motion-close);
+  }
+  .sheet.on {
+    opacity: 1;
+    visibility: visible;
+    transition-duration: var(--motion-open), 180ms, 0s;
+    transition-delay: 0s;
+  }
+  .sheet-mask { transition: opacity 180ms ease; }
+}
+@media (min-width: 768px) and (prefers-reduced-motion: no-preference) {
+  .sheet:not(.on) { transform: translateY(calc(50% + 12px)) scale(.98); }
+  .sheet.on { transform: translateY(50%) scale(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tick:active, .p-tile:active, .p-tile-more:active, .stepper button:active, .btn:active, .icon-btn:active { transform: none; }
+  .rg-feedback-ring { display: none; }
+}

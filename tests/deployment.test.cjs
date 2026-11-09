@@ -6,7 +6,7 @@ const vm = require('node:vm');
 
 const source = fs.readFileSync(path.join(__dirname, '..', 'sw.js'), 'utf8');
 const base = 'https://example.github.io/rigongyizhu/';
-const currentCache = 'rigongyizhu-standalone-64.10';
+const currentCache = 'rigongyizhu-standalone-64.11';
 const absolute = value => new URL(typeof value === 'string' ? value : value.url, base).href;
 
 function worker({ fail = () => false } = {}) {
@@ -96,7 +96,7 @@ test('an unavailable required script rejects installation and retains the previo
 test('optional icons may fail without blocking a complete offline shell', async () => {
   const w = worker({ fail: url => url.endsWith('/assets/icon-192.png') });
   await w.lifecycle('install');
-  for (const file of ['index.html', 'assets/app.css?v=64', 'assets/product.css?v=64', 'src/history-engine.js?v=64', 'src/app.bundle.js?v=64', 'src/weekly-metrics.js?v=64', 'src/chunk-diary.js?v=64', 'src/chunk-grow.js?v=64', 'src/chunk-social.js?v=64', 'src/chunk-plus.js?v=64']) {
+  for (const file of ['index.html', 'assets/app.css?v=64', 'assets/product.css?v=64', 'src/history-engine.js?v=64', 'src/app.bundle.js?v=64','src/interaction-feedback.js?v=64', 'src/weekly-metrics.js?v=64', 'src/chunk-diary.js?v=64', 'src/chunk-grow.js?v=64', 'src/chunk-social.js?v=64', 'src/chunk-plus.js?v=64']) {
     assert.ok(w.stores.get(currentCache).has(base + file), file + ' is precached');
   }
   assert.equal(w.skips, 0, 'install waits for user consent to switch versions');
