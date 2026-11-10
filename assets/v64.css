@@ -535,3 +535,7 @@ html[data-theme="dark"] {
   .tick:active, .p-tile:active, .p-tile-more:active, .stepper button:active, .btn:active, .icon-btn:active { transform: none; }
   .rg-feedback-ring { display: none; }
 }
+
+/* At zero there is no decrement action or pressed feedback. */
+.stepper button:disabled { opacity: .35; cursor: default; }
+.stepper button:disabled:active { transform: none; background: transparent; }

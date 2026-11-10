@@ -81,15 +81,24 @@
       active.delete(id);
     }
   }
+  function syncMotionPreference() {
+    var shouldReduce = reduced();
+    if (root.FX && typeof root.FX.setReduced === 'function') root.FX.setReduced(shouldReduce);
+    if (shouldReduce) {
+      cancelAll();
+      root.document.querySelectorAll('#fxLayer,.celeb').forEach(function (element) { element.remove(); });
+    }
+  }
   function install() {
     if (installed || !root.document) return;
     installed = true;
+    syncMotionPreference();
     root.document.addEventListener('rigong:before-render', cancelAll);
     root.document.addEventListener('visibilitychange', function () {
       if (root.document.hidden) cancelAll();
     });
     if (media) {
-      var changed = function () { if (reduced()) cancelAll(); };
+      var changed = syncMotionPreference;
       if (media.addEventListener) media.addEventListener('change', changed);
       else if (media.addListener) media.addListener(changed);
     }

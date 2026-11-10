@@ -74,3 +74,13 @@ test('navigation and backgrounding clean up feedback before the next screen',()=
   f.feedback.update('habit',true);f.root.document.hidden=true;f.listeners.visibilitychange[0]();
   assert.ok(f.animations.every(a=>a.cancelled));assert.ok(f.rings.every(r=>r.removed));
 });
+
+test('motion preference changes synchronize legacy effects and remove only visual celebration layers',()=>{
+  const f=fixture(),seen=[],layer={removed:false,remove(){this.removed=true;}};
+  f.root.FX={setReduced(value){seen.push(value);}};
+  const query=f.root.document.querySelectorAll;
+  f.root.document.querySelectorAll=selector=>selector==='#fxLayer,.celeb'?[layer]:query(selector);
+  f.feedback.install();assert.deepEqual(seen,[false]);
+  f.media.matches=true;f.media.changed();assert.deepEqual(seen,[false,true]);assert.equal(layer.removed,true);
+  f.media.matches=false;f.media.changed();assert.deepEqual(seen,[false,true,false]);
+});
