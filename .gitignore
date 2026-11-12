@@ -1,5 +1,10 @@
 node_modules/
 data.json
+# 搭子数据落盘时会先写临时文件再改名；测试也会建临时目录。
+# 漏进版本库等于把别人的房间 token 提交上去。
+*.tmp
+.pair-test-*/
+.pair-hardening-*/
 *.log
 .DS_Store
 .env

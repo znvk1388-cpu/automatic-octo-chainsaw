@@ -18,6 +18,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const zlib = require('node:zlib');
 const crypto = require('node:crypto');
+const net = require('node:net');
 
 const PORT = Number(process.env.PORT) || 3000;
 const ROOT = __dirname;
@@ -41,7 +42,9 @@ function load() {
 function save() {
   const temp = DATA + '.' + crypto.randomBytes(8).toString('hex') + '.tmp';
   try {
-    fs.writeFileSync(temp, JSON.stringify(Object.fromEntries(pairs)), {flag: 'wx'});
+    /* 0600：文件里存着每个房间的 token，同机器上的其它用户不该读到。
+     * Windows 上 mode 被忽略，Linux/macOS 托管时生效。 */
+    fs.writeFileSync(temp, JSON.stringify(Object.fromEntries(pairs)), {flag: 'wx', mode: 0o600});
     fs.renameSync(temp, DATA);
   } catch (e) {
     try { fs.unlinkSync(temp); } catch (_) {}
@@ -64,8 +67,43 @@ load();
 const ok = (v, min, max) => Number.isFinite(v) && v >= min && v <= max;
 const newCode = () => { const b = crypto.randomBytes(6); return Array.from(b, x => ALPHA[x % ALPHA.length]).join(''); };
 const newToken = () => crypto.randomBytes(16).toString('hex');
-const clean = (s, n) => String(s == null ? '' : s).replace(/[\u0000-\u001f\u007f<>]/g, '').trim().slice(0, n);
+/* 昵称与习惯名会显示给搭子看。除了标签和换行，还要滤掉双向控制符
+ * （U+202E 之类）——否则一个昵称就能把整行文字反向显示，冒充别人发言。 */
+const clean = (s, n) => String(s == null ? '' : s)
+  .replace(/[\u0000-\u001f\u007f-\u009f<>\u200b-\u200f\u202a-\u202e\u2066-\u2069\ufeff]/g, '')
+  .trim().slice(0, n);
 const dayOk = s => /^\d{4}-\d{2}-\d{2}$/.test(String(s || ''));
+
+/* 默认只信连接来源；仅显式配置的代理可以提供转发链。 */
+function normalizeIp(value) {
+  const ip = String(value || '').trim();
+  return ip.startsWith('::ffff:') && net.isIP(ip.slice(7)) === 4 ? ip.slice(7) : ip;
+}
+const trustedProxies = new net.BlockList();
+for (const entry of String(process.env.TRUSTED_PROXIES || '').split(',').map(x => x.trim()).filter(Boolean)) {
+  const [address, prefix, extra] = entry.split('/');
+  const ip = normalizeIp(address), version = net.isIP(ip);
+  const bits = prefix === undefined ? (version === 4 ? 32 : 128) : Number(prefix);
+  if (!version || extra !== undefined || prefix === '' || !Number.isInteger(bits) || bits < 0 || bits > (version === 4 ? 32 : 128)) {
+    throw new Error('TRUSTED_PROXIES 必须是逗号分隔的有效 IP 或 CIDR: ' + entry);
+  }
+  trustedProxies.addSubnet(ip, bits, version === 4 ? 'ipv4' : 'ipv6');
+}
+function isTrustedProxy(ip) {
+  const version = net.isIP(ip);
+  return !!version && trustedProxies.check(ip, version === 4 ? 'ipv4' : 'ipv6');
+}
+function clientIp(req) {
+  const peer = normalizeIp(req.socket && req.socket.remoteAddress) || '?';
+  if (!isTrustedProxy(peer)) return peer;
+  const raw = String(req.headers['x-forwarded-for'] || '');
+  if (!raw) return peer;
+  const hops = raw.split(',').map(normalizeIp);
+  if (hops.some(ip => !net.isIP(ip))) return peer;
+  let ip = peer;
+  for (let i = hops.length - 1; i >= 0 && isTrustedProxy(ip); i--) ip = hops[i];
+  return ip;
+}
 
 function side(o) {
   return {
@@ -137,6 +175,14 @@ function update(o) {
 
 function read(q) {
   const { me, other } = auth({ code: q.get('code'), token: q.get('token') });
+  return { ok: true, me: pub(me), peer: pub(other) };
+}
+
+/* token 走请求体：URL 里的 query 会进访问日志、浏览器历史和代理日志，
+ * 属于"把钥匙写在门上"。新客户端一律用 POST /api/read；
+ * GET /api/state 只是旧版本 PWA 的兼容通道，等旧缓存自然淘汰后可以删除。 */
+function readBody(o) {
+  const { me, other } = auth({ code: o && o.code, token: o && o.token });
   return { ok: true, me: pub(me), peer: pub(other) };
 }
 
@@ -269,7 +315,10 @@ function sendFile(req, res, rel) {
      * nosniff 防 MIME 嗅探把 .json/.txt 当脚本跑；Referrer-Policy 让我们跳到
      * 用户自己的 WebDAV 网盘时不把页面地址带过去（地址里有房间码）。 */
     'X-Content-Type-Options': 'nosniff',
-    'Referrer-Policy': 'same-origin'
+    'Referrer-Policy': 'same-origin',
+    /* 防点击劫持：应用里「清空全部数据」「撤回共享」都是不可逆操作，
+     * 被别人的页面套进 iframe 里点一下就麻烦了。只允许同源嵌套。 */
+    'X-Frame-Options': 'SAMEORIGIN'
   };
   if (CSP && /^text\/html/.test(type)) head['Content-Security-Policy'] = CSP;
   if (req.headers['if-none-match'] === etag) { res.writeHead(304, head); return res.end(); }
@@ -309,13 +358,14 @@ const server = http.createServer(async (req, res) => {
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
     res.setHeader('Access-Control-Max-Age', '600');
     if (req.method === 'OPTIONS') { res.writeHead(204); return res.end(); }
-    const ip = (req.headers['x-forwarded-for'] || '').split(',')[0].trim() || req.socket.remoteAddress || '?';
+    const ip = clientIp(req);
     if (limited(ip)) return json(res, { ok: false, error: 'slow-down' }, 429);
     try {
       if (p === '/api/health') return json(res, { ok: true, pairs: pairs.size, uptime: Math.round(process.uptime()) });
       if (req.method === 'POST' && p === '/api/create') return json(res, mutate(create, await body(req)));
       if (req.method === 'POST' && p === '/api/join') return json(res, mutate(join, await body(req)));
       if (req.method === 'POST' && p === '/api/state') return json(res, mutate(update, await body(req)));
+      if (req.method === 'POST' && p === '/api/read') return json(res, readBody(await body(req)));
       if (req.method === 'GET' && p === '/api/state') return json(res, read(u.searchParams));
       if (req.method === 'GET' && p === '/api/peek') return json(res, peek(u.searchParams));
       if (req.method === 'POST' && p === '/api/leave') return json(res, mutate(leave, await body(req)));

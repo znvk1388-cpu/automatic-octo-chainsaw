@@ -14,6 +14,25 @@
   const own = (object, key) => Object.prototype.hasOwnProperty.call(object, key);
   const state = () => root.Store && root.Store.s;
   const editing = new WeakMap();
+  // ruleAt is called once per habit per historical day (streaks, calendar views,
+  // progress). Rebuilding the version list involves snapshots and clones, so
+  // cache it per item for the current day and invalidate on edit.
+  const versionsCache = new WeakMap();
+  // ruleAt clones the effective rule on every call (once per habit per day).
+  // Nothing mutates resolved steps/schedule in place, so the clone can be
+  // shared per rule object; beforeEdit replaces the version list wholesale.
+  const ruleCloneCache = new WeakMap();
+  // The cached clone is shared across resolve() results. Freeze it deep so a
+  // consumer mutating resolved.steps / resolved.schedule in place cannot
+  // corrupt other days; replacing whole fields on the resolved object still
+  // works because only the cached clone (not the result) is frozen.
+  const freezeDeep = value => {
+    if (value && typeof value === 'object' && !Object.isFrozen(value)) {
+      Object.freeze(value);
+      for (const key of Object.keys(value)) freezeDeep(value[key]);
+    }
+    return value;
+  };
 
   function dateOf(timestamp, fallback) {
     const date = new Date(timestamp);
@@ -37,7 +56,7 @@
     };
   }
 
-  function versions(item) {
+  function computeVersions(item) {
     const saved = Array.isArray(item.planHistory) ? item.planHistory.filter(entry => entry && DATE.test(entry.from) && entry.rule && typeof entry.rule === 'object') : [];
     if (saved.length) return saved.slice().sort((a, b) => a.from.localeCompare(b.from));
 
@@ -51,6 +70,15 @@
     return [{from: '0000-01-01', rule: base}, {from: effective, rule}];
   }
 
+  function versions(item) {
+    const day = today();
+    const cached = versionsCache.get(item);
+    if (cached && cached.day === day) return cached.list;
+    const list = computeVersions(item);
+    versionsCache.set(item, {day, list});
+    return list;
+  }
+
   function ruleAt(item, date) {
     const history = versions(item);
     let rule = history[0].rule;
@@ -58,7 +86,12 @@
       if (entry.from > date) break;
       rule = entry.rule;
     }
-    const resolved = Object.assign({}, item, clone(rule));
+    let copy = ruleCloneCache.get(rule);
+    if (!copy) {
+      copy = freezeDeep(clone(rule));
+      ruleCloneCache.set(rule, copy);
+    }
+    const resolved = Object.assign({}, item, copy);
     if (resolved.pausedUntil && resolved.pausedFrom && date < resolved.pausedFrom) resolved.pausedUntil = null;
     return resolved;
   }
@@ -119,6 +152,7 @@
     if (index >= 0) history[index] = next;
     else history.push(next);
     item.planHistory = history.sort((a, b) => a.from.localeCompare(b.from));
+    versionsCache.delete(item);
   }
 
   function afterEdit(data, item) {

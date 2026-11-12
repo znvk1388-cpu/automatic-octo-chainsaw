@@ -84,3 +84,6 @@ html[data-theme=dark] .tabbar{background:color-mix(in srgb,var(--bg) 88%,#fff 2%
   .hitem>.h-sw-body>.p-habit-menu{margin-left:auto}
 }
 
+
+/* A full row remains tappable when advanced habit options are collapsed. */
+#fOptions,#fExtras{padding:4px 0}#fOptions>summary,#fExtras>summary{min-height:44px;align-content:center;margin:0}#fOptions[open]>summary,#fExtras[open]>summary{margin-bottom:12px}

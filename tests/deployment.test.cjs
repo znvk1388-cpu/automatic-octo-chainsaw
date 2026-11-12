@@ -6,7 +6,10 @@ const vm = require('node:vm');
 
 const source = fs.readFileSync(path.join(__dirname, '..', 'sw.js'), 'utf8');
 const base = 'https://example.github.io/rigongyizhu/';
-const currentCache = 'rigongyizhu-standalone-64.12';
+/* 从源码解析当前缓存版本：升版本号时测试不需要跟着改 */
+const versionInSource = (source.match(/CACHE_PREFIX \+ '([^']+)'/) || [])[1];
+if (!versionInSource) throw new Error('sw.js 里找不到缓存版本号');
+const currentCache = 'rigongyizhu-standalone-' + versionInSource;
 const absolute = value => new URL(typeof value === 'string' ? value : value.url, base).href;
 
 function worker({ fail = () => false } = {}) {
