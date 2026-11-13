@@ -539,3 +539,16 @@ html[data-theme="dark"] {
 /* At zero there is no decrement action or pressed feedback. */
 .stepper button:disabled { opacity: .35; cursor: default; }
 .stepper button:disabled:active { transform: none; background: transparent; }
+
+/* Touch targets follow the available pane width, including tablet split screen. */
+@media (any-pointer: coarse) {
+  .topbar-right .icon-btn,
+  .hitem [data-act="habitmenu"],
+  #fColor .chip { min-width: 44px; min-height: 44px; }
+  .topbar-right .icon-btn { flex-shrink: 0; }
+}
+@media (min-width: 600px) and (any-pointer: coarse) {
+  .topbar-right .icon-btn,
+  .hitem [data-act="habitmenu"],
+  #fColor .chip { min-width: 48px; min-height: 48px; }
+}
